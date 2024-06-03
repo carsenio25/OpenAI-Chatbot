@@ -19,25 +19,56 @@ function App() {
    }
   
 
-  return (
-    <>
-      <div>
+   return (
+    <div style={{ display: 'flex', justifyContent: 'center', flexDirection: 'column', width: '30vw', height: '95vh', margin: '2vh' }}>
+      <div style={{ flex: 1, overflowY: 'auto', padding: '10px', border: '1px solid #ccc', borderRadius: '5px' }}>
         {conversation.map((msg, index) => (
-          <div key={index}>
-            {msg.content}
+          <div
+            key={index}
+            style={{
+              display: 'flex',
+              justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start',
+              margin: '5px 0',
+              marginBottom: '3vh'
+            }}
+          >
+            <div
+              style={{
+                padding: '10px',
+                borderRadius: '10px',
+                backgroundColor: msg.role === 'user' ? '#D1E8E4' : '#F7D9C4',
+                maxWidth: '60%',
+              }}
+            >
+              {msg.content}
             </div>
+          </div>
         ))}
       </div>
-      <input 
-      value={message}
-      onChange={e => setMessage(e.target.value)}
-      onKeyDown={e => e.key === 'Enter' && sendMessage()}
-      ></input>
-      <button onClick={sendMessage}>Send</button>
-
-
-    </>
-  )
+      <div style={{ display: 'flex', marginTop: '10px' }}>
+        <input
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
+          onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
+          style={{ flex: 1, padding: '10px', borderRadius: '5px', border: '1px solid #ccc' }}
+        />
+        <button
+          onClick={sendMessage}
+          style={{
+            marginLeft: '10px',
+            padding: '10px 20px',
+            borderRadius: '5px',
+            border: 'none',
+            backgroundColor: '#00B4D8',
+            color: 'white',
+            cursor: 'pointer',
+          }}
+        >
+          Send
+        </button>
+      </div>
+    </div>
+  );
 }
 
-export default App
+export default App;
