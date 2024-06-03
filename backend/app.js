@@ -54,6 +54,21 @@ app.post('/message', async (req, res) => {
     }
 });
 
+app.get('/threads', async (req, res) => {
+    try {
+        const threadsRef = db.collection('conversations');
+        const snapshot = await threadsRef.get();
+        const threads = snapshot.docs.map(doc => ({
+            id: doc.id,  // Each document's ID is the thread ID
+            lastMessage: doc.data().messages.slice(-1)[0]  // You can include the last message as a preview
+        }));
+        res.json({ threads });  // Send the list of threads to the client
+    } catch (error) {
+        console.error('Error fetching threads:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
 
   app.get('/conversation/:id', async (req, res) => {
     const { id } = req.params;
