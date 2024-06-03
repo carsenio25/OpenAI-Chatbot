@@ -3,6 +3,9 @@ import dotenv from 'dotenv';
 import bodyParser from 'body-parser';
 import OpenAI from "openai";
 import cors from 'cors';
+import db from './firebase.js';
+import admin from 'firebase-admin';
+
 
 
 dotenv.config();
@@ -20,23 +23,37 @@ app.use(cors());
 
 
 app.post('/message', async (req, res) => {
-    const { conversation } = req.body;
-  
+    const { conversation, threadId } = req.body;
+
     const systemMessage = { role: "system", content: "You are a helpful assistant." };
-    //const userMessage = { role: "user", content: message };
-    //console.log(conversation)
+    let docRef;
+    
     try {
       const completion = await openai.chat.completions.create({
         model: "gpt-3.5-turbo",
         messages: [systemMessage, ...conversation],
       });
-  
-      res.json({ botMessage: completion.choices[0].message.content });
+
+      const botMessage = { role: 'system', content: completion.choices[0].message.content };
+
+      if (threadId) {
+        docRef = db.collection('conversations').doc(threadId);
+        await docRef.update({
+          messages: admin.firestore.FieldValue.arrayUnion(...conversation, botMessage)
+        });
+      } else {
+        docRef = await db.collection('conversations').add({
+          messages: [...conversation, botMessage]
+        });
+      }
+      
+      res.json({ threadId: docRef.id, botMessage: botMessage.content });
     } catch (error) {
       console.error('Error processing request:', error);
       res.status(500).json({ error: error.message || 'Internal Server Error' });
     }
-  });
+});
+
 
   app.get('/conversation/:id', async (req, res) => {
     const { id } = req.params;

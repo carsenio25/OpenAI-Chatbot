@@ -4,21 +4,31 @@ import axios from 'axios';
 function App() {
   const [message, setMessage] = useState('')
   const [conversation, setConversation] = useState([])
+  const [threadId, setThreadId] = useState(null);
 
   const sendMessage = async () => {
     if (!message) return;
   
     const newMessage = { role: 'user', content: message };
-    setConversation(conversation => [...conversation, newMessage]);
+    const updatedConversation = [...conversation, newMessage]; // Create the updated conversation array
+  
+    setConversation(updatedConversation); // Update the conversation state
   
     try {
-      const response = await axios.post('http://localhost:3000/message', { conversation: [...conversation, newMessage] });
-      setConversation(conversation => [...conversation, { role: 'system', content: response.data.botMessage }]);
+      const response = await axios.post('http://localhost:3000/message', {
+        conversation: updatedConversation, // Use the updated conversation here
+        threadId
+      });
+  
+      const botMessage = { role: 'system', content: response.data.botMessage };
+      setConversation(prevConversation => [...prevConversation, botMessage]); // Update with the bot's response
+      setThreadId(response.data.threadId); // Store threadId returned from the server
       setMessage('');
     } catch (error) {
       console.error('Error sending message', error);
     }
   }
+  
   
 
    return (
