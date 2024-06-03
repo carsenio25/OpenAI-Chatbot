@@ -7,20 +7,22 @@ function App() {
 
   const sendMessage = async () => {
     if (!message) return;
-    setConversation([...conversation, {role: 'user', content: message }])
+  
+    const newMessage = { role: 'user', content: message };
+    setConversation(conversation => [...conversation, newMessage]);
+  
     try {
-      const response = await axios.post('http://localhost:3000/message', { message });
-      setConversation(conversation => [...conversation, { role: 'system', content: response.data.botMessage}])
-      setMessage('')
-    } catch (error){
-      console.error('Error sending message', error)
+      const response = await axios.post('http://localhost:3000/message', { conversation: [...conversation, newMessage] });
+      setConversation(conversation => [...conversation, { role: 'system', content: response.data.botMessage }]);
+      setMessage('');
+    } catch (error) {
+      console.error('Error sending message', error);
     }
-      
-   }
+  }
   
 
    return (
-    <div style={{ display: 'flex', justifyContent: 'center', flexDirection: 'column', width: '30vw', height: '95vh', margin: '2vh' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', width: '30vw', height: '80vh', margin: '2vh' }}>
       <div style={{ flex: 1, overflowY: 'auto', padding: '10px', border: '1px solid #ccc', borderRadius: '5px' }}>
         {conversation.map((msg, index) => (
           <div
